@@ -2,61 +2,58 @@ const bcrypt = require('bcrypt')
 const koneksi = require('./database')
 
 const createRestApi = app => {
-    app.post('/user/login', async (request, response) => {
-        if (request.session.userId) {
-            response.json({result: 'ERROR', message: 'User already logged in.'});
-        } else {
-            const user = {
-                email: request.body.email,
-                password: request.body.password
-            };
-
-            const queryloginsql = 'SELECT id,password FROM users WHERE email= ? LIMIT 1';
-                koneksi.query(queryloginsql, user.email, (err, rows) => {
-                    if (err) {
-                        response.json({result: 'ERROR', message: 'Request operation error.'});
-                    }else if(!rows.length){
-                        response.json({result: 'ERROR', message: 'Indicated username or/and password are not correct.'});
-                    }
-
-                    var checkakun = bcrypt.compareSync(user.password, rows[0].password.replace(/^\$2y/, "$2a"))
+    app.post('/api/login', async (request, response) => {
+        const user = {
+            email: request.body.email,
+            password: request.body.password
+        };
+        if (user.email && user.password) {
+            koneksi.query('SELECT users.id, users.password, user_group.group_id FROM users INNER JOIN user_group ON users.id = user_group.user_id WHERE users.email= ? LIMIT 1;', [user.email], (err, result) => {
+                if (err) throw err
+                if (result.length > 0) {
+                    var checkakun = bcrypt.compareSync(user.password, result[0].password.replace(/^\$2y/, "$2a"))
                     if(checkakun){
-                        const user = rows[0];
-                        request.session.userId = user.id;
-                        response.json({result: 'SUCCESS', userId: user.id});
+                        const user = result[0]
+                        request.session.userId = user.id
+                        request.session.Level  = user.group_id
+                        return response.json({result: 'SUCCESS', userId: user.id});
+                        
                     }else {
-                        response.json({result: 'ERROR', message: 'Indicated username or/and password are not correct.'});
-                    }      
-
-                });
+                        return response.json({result: 'ERROR', message: 'Incorrect Password!'});
+                    }  
+                }else{
+                    return response.json({result: 'ERROR', message: 'Incorrect Email and/or Password!'});
+                }
+            });
+        }else{
+            return response.json({result: 'ERROR', message: 'Please enter Email and Password!'});
         }
-        response.status(201).json({result: 'ERROR', message: 'Indicated username or/and password are not correct.'});
+
     });
       
     app.get('/user/logout', async (request, response) => {
         if (request.session.userId) {
             delete request.session.userId;
-            response.json({result: 'SUCCESS'});
+            return response.json({result: 'SUCCESS', message: 'BERHASIL'});
         } else {
-            response.json({result: 'ERROR', message: 'User is not logged in.'});
+            return response.json({result: 'ERROR', message: ''});
         }
     });
 
-    app.get('/home/sales/data', async (request, response) => {
+    app.post('/api/sales/data', async (request, response) => {
         if (!request.session.userId) {
-            response.json({result: 'ERROR', message: 'User is not logged in.'});
+            return  response.redirect('/')
         }
-
-        const querySql = 'SELECT sales.id as id, products.name as name, sales.qty as qty FROM sales INNER JOIN products ON products.id = sales.id WHERE sales.user_id = ?';
-        koneksi.query(querySql, request.session.userId, (err, rows, field) => {
-            if (err) {
-                return res.status(500).json({ message: 'Ada kesalahan', error: err });
+        let userid = request.body.userid;
+        koneksi.query('SELECT sales.id as id, products.name as name, sales.qty as qty FROM sales INNER JOIN products ON products.id = sales.id WHERE sales.user_id = ?', [userid], (err, result) => {
+            if (err) throw err
+            if (result.length > 0) {
+                return response.json({result: 'SUCCESS', success: true, data: result});
+            }else{
+                return response.json({result: 'ERROR', message : "Data Kosong"});
             }
-            res.status(200).json({ success: true, data: rows });
         });
     });
-
-    
 };
 
 module.exports = {

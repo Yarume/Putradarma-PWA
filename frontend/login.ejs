@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="utf-8">
+	<title>Putra Darma Login</title>
+
+	<!-- Google Fonts -->
+	<link href='https://fonts.googleapis.com/css?family=Roboto+Slab:400,100,300,700|Lato:400,100,300,700,900' rel='stylesheet' type='text/css'>
+
+	<!-- Custom Stylesheet -->
+	<link rel="stylesheet" href="/css/login.css">
+
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
+</head>
+
+<body>
+	<div class="container">
+		<div class="login-box animated fadeInUp">
+			<div class="box-header">
+				<h2>Log In</h2>
+			</div>
+			<script>
+                const loginUser = async form => {
+                    try {
+                        const response = await fetch('/api/login', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify({
+                                password: form.password.value,
+                                email: form.email.value
+                            })
+                            
+                        });
+                        const data = await response.json()
+                        if (data.result === 'SUCCESS') {
+                            location.reload();
+                        } else {
+                            alert('User login operation error (message: ' + data.message + ').');
+                        }
+                    } catch(e) {
+                        console.error(e);
+                        alert('Request error!');
+                    }
+                };
+        
+            </script>
+
+			<form method="post" onsubmit="loginUser(this); return false;">
+				<label for="username">Username</label>
+				<br/>
+				<input type="text" name="email" placeholder="email" id="email" value="" required>
+				<br/>
+				<label for="password">Password</label>
+				<br/>
+				<input type="password" name="password" placeholder="Password" id="password" value="" required>
+				<br/>
+				<input type="submit" value="Login">
+			</form>
+		</div>
+	</div>
+</body>
+
+
+</html>

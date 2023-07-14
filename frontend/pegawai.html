@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PWA</title>
+    <link rel='stylesheet' href='https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.5.3/css/bootstrap.min.css'/>
+    <link rel="stylesheet" href="main.css">
+    <link rel="manifest" href="manifest.json">
+    <link rel="shortcut icon" href="images/icon.png" type="image/x-icon">
+
+    <meta name="theme-color" content="#317EFB"/>
+    <link rel="apple-touch-icon" href="images/icon.png">
+</head>
+<body>
+    <main class="container-fluid">
+        <header class="row">
+            <div class="col mt-5">
+                <div class="d-flex justify-content-center align-items-center">
+                    <h2>
+                        Putra Darma 
+                    </h2>
+                </div>
+            </div>
+        </header>
+        <button onclick="logoutUser()">Logout</button>
+
+    </main>
+    <script>
+
+        const logoutUser = async () => {
+            try {
+                const response = await fetch('/user/logout');
+                const data = await response.json();
+                if (data.result === 'SUCCESS') {
+                    alert('User logout operation success.');
+                    location.reload();
+                } else {
+                    alert('User logout operation error (message: ' + data.message + ').');
+                }
+            } catch(e) {
+                console.error(e);
+                alert('Request error!');
+            }
+        };
+    </script>
+    <script src='https://cdnjs.cloudflare.com/ajax/libs/axios/0.21.0/axios.js'></script>
+    <script src="main.js"></script>
+    <script src="add-to-your-home-screen.js"></script>
+</body>
+</html>

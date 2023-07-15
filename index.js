@@ -7,7 +7,7 @@ const {createViewApi} = require('./frontend/api.js');
 
 const path = require("path");
 const app = express();
-const PORT = 4000 || process.env.NODE_ENV;
+const PORT = 5000 || process.env.NODE_ENV;
 
 app.use(express.json());
 app.set('view engine', 'ejs');

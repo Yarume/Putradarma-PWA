@@ -48,18 +48,15 @@
                         <form method="post" onsubmit="loginUser(this); return false;">
                             <div class="box-body">                              
                               <div class="form-group">
-                              <label for="product">Product</label>
-                                  <select class="form-control" id="products" name="products">
-                                    <option value="">Select Produk</option>
-                                    <% data_products.forEach(function(data) { %>
-                                            <option value="<%= data.id %>">Qty : <%= data.qty %> | <%= data.name %></option>     
-                                        <% }); %>
+                              <label for="product">Nama Produk</label>
+                                    <select class="form-control" id="products" name="products">
+                                        <option value="<%= itemid %>"> <%= itemname %></option>     
                                     </select>
                               </div>
 
                               <div class="form-group">
                                 <label for="qty">Qty</label>
-                                <input type="number" class="form-control" id="qty" name="qty" placeholder="Enter Qty" value="" autocomplete="off" />
+                                <input type="number" class="form-control" id="qty" name="qty" placeholder="Enter Qty" value="<%= itemqty %>" autocomplete="off" />
                               </div>
               
                             </div>

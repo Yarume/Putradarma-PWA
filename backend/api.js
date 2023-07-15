@@ -34,7 +34,7 @@ const createRestApi = app => {
     app.get('/user/logout', async (request, response) => {
         if (request.session.userId) {
             delete request.session.userId;
-            return response.json({result: 'SUCCESS', message: 'BERHASIL'});
+            return  response.redirect('/')
         } else {
             return response.json({result: 'ERROR', message: ''});
         }
@@ -65,12 +65,29 @@ const createRestApi = app => {
             qty:        request.body.qty,
         };
         if (barang.item_id && barang.qty) {
-            koneksi.query('SELECT qty FROM products WHERE qty > ? LIMIT 1', [barang.qty], (err, result) => {
+            koneksi.query('SELECT id,qty,name FROM products WHERE id = ? AND qty > ? LIMIT 1', [barang.item_id, barang.qty], (err, sproduk) => {
                 if (err) throw err
-                if (result.length > 0) {
-                    koneksi.query('SELECT * FROM sales WHERE item_id = ? AND user_id = ?  LIMIT 1', [barang.item_id, barang.user_id], (err, result) => {
+                if (sproduk.length < 1) {
+                    koneksi.query('SELECT * FROM sales WHERE item_id = ? AND user_id = ?  LIMIT 1', [barang.item_id, barang.user_id], (err, ssales) => {
                         if (err) throw err
-                        if (result.length > 0) { // UPDATE FUNCTION
+
+
+                        //HISTORY INSERT
+                        const history = {
+                            userid: request.session.userId,
+                            Type: "MOBILE",
+                            qty: barang.qty,
+                            history: "USER : , Request Barang "+sproduk.name+" Sebanyak "+ request.body.qty +"",
+                        }
+                        koneksi.query('INSERT INTO history SET ?', [history], (err, result) => {
+                            if (err) {
+                                return response.json({result: 'ERROR', message : err});
+                            }
+                            return response.json({result: 'SUCCESS', success: true, data: result});
+                        });
+
+
+                        if (ssales.length > 0) { // UPDATE FUNCTION
                             koneksi.query('UPDATE sales SET qty = qty + ? WHERE user_id = ? AND item_id = ?', [barang.qty, barang.user_id, barang.item_id], (err, result) => {
                                 if (err) {
                                     return response.json({result: 'ERROR', message : err});
@@ -79,7 +96,6 @@ const createRestApi = app => {
                                     if (err) {
                                         return response.json({result: 'ERROR', message : err});
                                     }
-                                    return response.json({result: 'SUCCESS', success: true, data: result});
                                 });
                             });
                         }else{ // INSERT FUNCTION
@@ -100,6 +116,46 @@ const createRestApi = app => {
         }
 
     });
+
+    app.post('/api/product/add', async (request, response) => {
+        if (!request.session.userId) {
+            return  response.redirect('/')
+        }
+        const barang = {
+            user_id :    request.session.userId,
+            item_id:     request.body.products,
+            qty:        request.body.qty,
+        };
+        if (barang.item_id && barang.qty) {
+            koneksi.query('SELECT id,qty FROM products WHERE id = ? LIMIT 1', [barang.item_id], (err, res2) => {
+                if (err) throw err
+                if (result.length > 0) {
+                    koneksi.query('UPDATE products SET qty = ? WHERE id = ?', [barang.qty, barang.item_id], (err, result) => {
+                        if (err) {
+                            return response.json({result: 'ERROR', message : err});
+                        }
+                        const history = {
+                            userid: request.session.userId,
+                            Type: "UPDATE",
+                            qty: barang.qty,
+                            history: "USER : , Update Qty dari "+ res2[0].qty+" Menjadi "+ barang.qty +"",
+                        }
+                        koneksi.query('INSERT INTO sales SET ?', [history], (err, result) => {
+                            if (err) {
+                                return response.json({result: 'ERROR', message : err});
+                            }
+                            return response.json({result: 'SUCCESS', success: true, data: result});
+                        });
+                        return response.json({result: 'SUCCESS', success: true, data: result});
+                    }); 
+                }
+            });
+        }else{
+            return response.json({result: 'ERROR', message: 'Please fill form'});
+        }
+
+    });
+
 };
 
 module.exports = {

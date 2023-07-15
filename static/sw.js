@@ -1,11 +1,8 @@
 const CACHE_LIST = [
     "/",
-    "/index.html",
     "/add-to-your-home-screen.js",
-    "/main.js",
-    "/main.css",
-    "https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.5.3/css/bootstrap.min.css",
-    "https://cdnjs.cloudflare.com/ajax/libs/axios/0.21.0/axios.js"
+    "/css/login.css",
+    "/css/styles.css",
 ];
 
 const STATIC_CACHE_VERSION = `static-v1-${new Date().getTime()}`
@@ -54,6 +51,8 @@ self.addEventListener('fetch', (event) => {
     console.log("SW Fetch Event: Is in the process");
 
     const onSuccessFetch = response => {
+        if (!(event.request.url.indexOf('http') === 0)) return;
+        
         if (CACHE_LIST.includes(new URL(event.request.url).pathname)) return response
             const onSuccessDynamicCacheOpen = cache => {
             cache.put(event.request.url, response.clone())

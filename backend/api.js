@@ -54,6 +54,52 @@ const createRestApi = app => {
             }
         });
     });
+
+    app.post('/api/sales/add', async (request, response) => {
+        if (!request.session.userId) {
+            return  response.redirect('/')
+        }
+        const barang = {
+            user_id :    request.session.userId,
+            item_id:     request.body.products,
+            qty:        request.body.qty,
+        };
+        if (barang.item_id && barang.qty) {
+            koneksi.query('SELECT qty FROM products WHERE qty > ? LIMIT 1', [barang.qty], (err, result) => {
+                if (err) throw err
+                if (result.length > 0) {
+                    koneksi.query('SELECT * FROM sales WHERE item_id = ? AND user_id = ?  LIMIT 1', [barang.item_id, barang.user_id], (err, result) => {
+                        if (err) throw err
+                        if (result.length > 0) { // UPDATE FUNCTION
+                            koneksi.query('UPDATE sales SET qty = qty + ? WHERE user_id = ? AND item_id = ?', [barang.qty, barang.user_id, barang.item_id], (err, result) => {
+                                if (err) {
+                                    return response.json({result: 'ERROR', message : err});
+                                }
+                                koneksi.query('UPDATE products SET qty = qty - ? WHERE id = ?', [barang.qty, barang.item_id], (err, result) => {
+                                    if (err) {
+                                        return response.json({result: 'ERROR', message : err});
+                                    }
+                                    return response.json({result: 'SUCCESS', success: true, data: result});
+                                });
+                            });
+                        }else{ // INSERT FUNCTION
+                            koneksi.query('INSERT INTO sales SET ?', [barang], (err, result) => {
+                                if (err) {
+                                    return response.json({result: 'ERROR', message : err});
+                                }
+                                return response.json({result: 'SUCCESS', success: true, data: result});
+                            });
+                        }
+                    });
+                }else{
+                    return response.json({result: 'ERROR', message: 'Jumlah barang yang di input tidak tersedia'});
+                }
+            });
+        }else{
+            return response.json({result: 'ERROR', message: 'Please fill form'});
+        }
+
+    });
 };
 
 module.exports = {

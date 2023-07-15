@@ -21,6 +21,22 @@ const createViewApi = app => {
             return res.render(path.join(__dirname, 'login'));
         }
     });
+
+    app.get('/add/barang/sales', async (request, res) => {
+        if (!request.session.userId) {
+            return  res.redirect('/')
+        }
+        koneksi.query('SELECT id,name,qty FROM products WHERE qty > 0', [], (error, result, fields) => {
+            return res.render(path.join(__dirname, 'sales'), {
+                error: false,
+                data_products: result,
+                user_id: request.session.userId,
+            });
+        });
+       
+    
+       
+    });
 };
 
 module.exports = {

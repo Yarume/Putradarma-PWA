@@ -8,14 +8,15 @@
                         <script>
                             const loginUser = async form => {
                                 try {
-                                    const response = await fetch('/api/product/add', {
+                                    const response = await fetch('/api/product/jual', {
                                         method: 'POST',
                                         headers: {
                                             'Content-Type': 'application/json',
                                         },
                                         body: JSON.stringify({
                                             products: form.products.value,
-                                            qty: form.qty.value
+                                            qty: form.qty.value,
+                                            harga :  '<%= itemprice %>'
                                         })
                                         
                                     });
@@ -36,17 +37,22 @@
                         <form method="post" onsubmit="loginUser(this); return false;">
                             <div class="box-body">                              
                               <div class="form-group">
-                              <label for="product">Nama Produk</label>
-                                    <select class="form-control" id="products" name="products">
-                                        <option value="<%= itemid %>"> <%= itemname %></option>     
+                              <label for="product">Product</label>
+                                  <select class="form-control" id="products" name="products">
+                                    <option value="<%= itemid %>">Qty : <%= itemqty %> | <%= itemname %></option>     
                                     </select>
                               </div>
 
                               <div class="form-group">
-                                <label for="qty">Qty</label>
-                                <input type="number" class="form-control" id="qty" name="qty" placeholder="Enter Qty" value="<%= itemqty %>" autocomplete="off" />
-                              </div>
-              
+                                <label for="qty">Total Barang</label>
+                                <input type="text" class="form-control" id="qty" name="qty" placeholder="Enter Qty" value="1" onkeyup="qty()" autocomplete="off" />
+                              </div>  
+
+                              <div class="form-group">
+                                <label for="qty">Total Harga</label>
+                                <input type="text" class="form-control" id="total" name="total" value="" autocomplete="off" disabled/>
+                              </div>  
+                              
                             </div>
                             <!-- /.box-body -->
                             </br>
@@ -58,4 +64,18 @@
                 </div>
             </div>
         </section>
+        <script>
+            const formatter = new Intl.NumberFormat('en-US', {
+                style: 'currency',
+                currency: 'IDR',
+            });
+
+            document.getElementById("qty").onkeyup = function() {myMethod()};
+            function myMethod() {
+                var number = document.getElementById("qty");
+                var total = document.getElementById("total");
+                total.value = formatter.format(number.value * <%= itemprice %>);
+            }
+            
+        </script>
         <%- include('./engine/footer'); %>

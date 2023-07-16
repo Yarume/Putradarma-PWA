@@ -1,16 +1,4 @@
 <%- include('./engine/header'); %>
-
-        <!-- Header-->
-        <header class="py-5">
-            <div class="container px-lg-5">
-                <div class="p-4 p-lg-5 bg-light rounded-3 text-center">
-                    <div class="m-4 m-lg-5">
-                        <h1 class="display-5 fw-bold">Putra Darma PWA</h1>
-                        <p class="fs-4">Selamat Datang di Aplikasi Putra Darma berbasis Proggresive Web App (PWA)  Aplikasi ini dirancang untuk membantu pegawai & admin dalam memasukan barang </p>
-                    </div>
-                </div>
-            </div>
-        </header>
         <!-- Page Content-->
         <section class="pt-4">
             <div class="container px-lg-5">
@@ -33,7 +21,7 @@
                                     });
                                     const data = await response.json()
                                     if (data.result === 'SUCCESS') {
-                                        location.reload();
+                                        document.location.href="/";
                                     } else {
                                         alert('message: ' + data.message + '');
                                     }

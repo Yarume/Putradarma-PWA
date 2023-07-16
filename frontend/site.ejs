@@ -1,20 +1,13 @@
 <%- include('./engine/header'); %>
-    <header class="py-5">
-            <div class="container px-lg-5">
-                <div class="p-4 p-lg-5 bg-light rounded-3 text-center">
-                    <div class="m-4 m-lg-5">
-                        <h1 class="display-5 fw-bold">Putra Darma PWA</h1>
-                        <p class="fs-4">Selamat Datang di Aplikasi Putra Darma berbasis Proggresive Web App (PWA)  Aplikasi ini dirancang untuk membantu pegawai & admin dalam memasukan barang </p>
-                    </div>
-                </div>
-            </div>
-        </header>
+
         <!-- Page Content-->
-        <a href="/user/logout" class="btn btn-primary">Log Out</a>
+        <div class="container px-lg-5">
+                <a href="/add/barang/sales" class="btn btn-primary">Tambah Barang</a>
+        </div>
+
         <section class="pt-4">
             <div class="container px-lg-5">
                 <!-- Page Features-->
-                <a href="/add/barang/sales" class="btn btn-primary">Tambah Barang</a>
                 <div class="row gx-lg-5">
                     <div class="col-lg-12">
                         <table id="example">
@@ -26,13 +19,16 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                <% data_barang.forEach(function(data) { %>
-                                <tr>
-                                    <td><%= data.name %></td>
-                                    <td><%= data.qty %></td>
-                                    <td>Jual</td>
-                                </tr>
-                                <% }); %>
+                                <% if(!data_barang == 0){ %>
+                                    <% data_barang.forEach(function(data) { %>
+                                    <tr>
+                                        <td><%= data.name %></td>
+                                        <td><%= data.qty %></td>
+                                        <td><a href="/jual/barang/<%= data.itemid %>" class="btn btn-primary">Jual</a></td>
+                                    </tr>
+                                    <% }); %>
+                                <% } else{ %>
+                                <% } %>
                             </tbody>
                         </table>
                     </div>
